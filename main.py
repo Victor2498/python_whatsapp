@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from fastapi import FastAPI, Request
 from openai import OpenAI
@@ -12,6 +13,45 @@ EVOLUTION_INSTANCE = os.getenv("EVOLUTION_INSTANCE")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+
+# --- CONFIGURACIÓN DE LA INMOBILIARIA ---
+AGENCY_NAME = "Agentech Propiedades"
+
+# Cargar catálogo de propiedades
+try:
+    with open("propiedades.json", "r", encoding="utf-8") as f:
+        PROPIEDADES = json.load(f)
+except Exception:
+    PROPIEDADES = []
+
+PROPIEDADES_STR = "\n".join([f"- {p['titulo']} ({p['operacion']}): {p['precio']}. {p['descripcion']}" for p in PROPIEDADES])
+
+AGENCY_INFO = f"""
+Somos una inmobiliaria líder en Argentina, especializada en alquileres, ventas y tasaciones.
+Ubicación: Buenos Aires, Argentina.
+Horarios: Lunes a Viernes de 9hs a 18hs.
+
+Nuestro catálogo actual incluye:
+{PROPIEDADES_STR}
+"""
+
+SYSTEM_PROMPT = f"""
+Eres el asistente virtual experto de {AGENCY_NAME}.
+{AGENCY_INFO}
+
+Instrucciones de comportamiento:
+1. Sé siempre amable, profesional y servicial.
+2. Si el cliente pregunta por alquileres, menciónale que pedimos garantía propietaria o seguro de caución.
+3. Si el cliente pregunta por una propiedad específica, búscala en el catálogo mencionado arriba.
+4. Si el cliente pregunta por algo que no está en el catálogo, dile que un asesor humano lo contactará a la brevedad.
+5. Intenta siempre obtener el nombre del cliente si la conversación avanza.
+6. Responde de forma concisa pero completa.
+"""
+# ----------------------------------------
+
+@app.get("/")
+async def health_check():
+    return {"status": "ok", "message": "Agentech API is running"}
 
 @app.post("/webhook")
 async def webhook(request: Request):
@@ -44,9 +84,9 @@ async def webhook(request: Request):
 
 def get_chatgpt_response(text):
     completion = client.chat.completions.create(
-        model="gpt-4o-mini", # Económico y rápido para inmobiliarias
+        model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Eres un asesor inmobiliario experto de Agentech en Argentina. Responde de forma amable y profesional."},
+            {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": text}
         ]
     )

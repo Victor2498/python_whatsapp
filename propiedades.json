@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "titulo": "Departamento 2 ambientes en Palermo",
+        "precio": "USD 120.000",
+        "operacion": "Venta",
+        "descripcion": "Luminoso departamento con balcón, excelente ubicación cerca de plaza Armenia."
+    },
+    {
+        "id": 2,
+        "titulo": "Casa 4 ambientes en Nordelta",
+        "precio": "USD 450.000",
+        "operacion": "Venta",
+        "descripcion": "Casa moderna con piscina y vista al lago. 3 dormitorios."
+    },
+    {
+        "id": 3,
+        "titulo": "Monoambiente en Recoleta",
+        "precio": "$450.000 + Expensas",
+        "operacion": "Alquiler",
+        "descripcion": "Recién pintado, ideal estudiantes. A metros de facultad de medicina."
+    }
+]
