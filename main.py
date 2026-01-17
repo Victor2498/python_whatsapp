@@ -24,7 +24,7 @@ try:
 except Exception:
     PROPIEDADES = []
 
-PROPIEDADES_STR = "\n".join([f"- {p['titulo']} ({p['operacion']}): {p['precio']}. {p['descripcion']}" for p in PROPIEDADES])
+PROPIEDADES_STR = "\n".join([f"- ID: {p['id']} | {p['titulo']} ({p['operacion']}): {p['precio']}. {p['descripcion']}" for p in PROPIEDADES])
 
 AGENCY_INFO = f"""
 Somos una inmobiliaria líder en Argentina, especializada en alquileres, ventas y tasaciones.
@@ -41,11 +41,11 @@ Eres el asistente virtual experto de {AGENCY_NAME}.
 
 Instrucciones de comportamiento:
 1. Sé siempre amable, profesional y servicial.
-2. Si el cliente pregunta por alquileres, menciónale que pedimos garantía propietaria o seguro de caución.
-3. Si el cliente pregunta por una propiedad específica, búscala en el catálogo mencionado arriba.
-4. Si el cliente pregunta por algo que no está en el catálogo, dile que un asesor humano lo contactará a la brevedad.
-5. Intenta siempre obtener el nombre del cliente si la conversación avanza.
-6. Responde de forma concisa pero completa.
+2. Si el cliente pregunta por una propiedad específica, bríndale la información y ofrécele ver fotos o agendar una visita.
+3. Para agendar visitas, mensiona el 'Link de Agenda' que corresponde a cada propiedad (si existe).
+4. Si el cliente quiere ver fotos, menciona el título de la propiedad exactamente como está en el catálogo.
+5. Intenta siempre obtener el nombre del cliente.
+6. Si el cliente pregunta algo que no está en el catálogo, dile que un asesor lo contactará.
 """
 # ----------------------------------------
 
@@ -85,6 +85,13 @@ async def webhook(request: Request):
         if ai_response:
             print(f"Enviando respuesta a WhatsApp: {ai_response}")
             send_to_whatsapp(remote_jid, ai_response)
+            
+            # NUEVO: Lógica para enviar imagen si se menciona una propiedad
+            for p in PROPIEDADES:
+                if p["titulo"].lower() in ai_response.lower() or f"ID: {p['id']}" in ai_response:
+                    if p.get("foto"):
+                        print(f"Enviando imagen de la propiedad: {p['titulo']}")
+                        send_media_to_whatsapp(remote_jid, p["foto"], f"Foto de: {p['titulo']}")
         else:
             print("Error: No hay respuesta para enviar")
 
@@ -109,11 +116,26 @@ def send_to_whatsapp(jid, text):
     payload = {
         "number": jid,
         "text": text,
-        "delay": 1500 # Simula escritura por 1.5 segundos
+        "delay": 1200
     }
     headers = {"apiKey": EVOLUTION_API_KEY, "Content-Type": "application/json"}
     try:
         response = requests.post(url, json=payload, headers=headers)
-        print(f"Estado de envío Evolution API: {response.status_code} - {response.text}")
+        print(f"Estado de envío Texto: {response.status_code}")
     except Exception as e:
-        print(f"ERROR ENVIANDO A EVOLUTION: {e}")
+        print(f"ERROR ENVIANDO TEXTO: {e}")
+
+def send_media_to_whatsapp(jid, media_url, caption):
+    url = f"{EVOLUTION_API_URL}/message/sendMedia/{EVOLUTION_INSTANCE}"
+    payload = {
+        "number": jid,
+        "mediatype": "image",
+        "media": media_url,
+        "caption": caption
+    }
+    headers = {"apiKey": EVOLUTION_API_KEY, "Content-Type": "application/json"}
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        print(f"Estado de envío Media: {response.status_code}")
+    except Exception as e:
+        print(f"ERROR ENVIANDO MEDIA: {e}")

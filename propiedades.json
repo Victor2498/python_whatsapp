@@ -4,20 +4,26 @@
         "titulo": "Departamento 2 ambientes en Palermo",
         "precio": "USD 120.000",
         "operacion": "Venta",
-        "descripcion": "Luminoso departamento con balcón, excelente ubicación cerca de plaza Armenia."
+        "descripcion": "Luminoso departamento con balcón, excelente ubicación cerca de plaza Armenia.",
+        "foto": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80",
+        "link_agenda": "https://calendly.com/agentech/visita-palermo"
     },
     {
         "id": 2,
         "titulo": "Casa 4 ambientes en Nordelta",
         "precio": "USD 450.000",
         "operacion": "Venta",
-        "descripcion": "Casa moderna con piscina y vista al lago. 3 dormitorios."
+        "descripcion": "Casa moderna con piscina y vista al lago. 3 dormitorios.",
+        "foto": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+        "link_agenda": "https://calendly.com/agentech/visita-nordelta"
     },
     {
         "id": 3,
         "titulo": "Monoambiente en Recoleta",
         "precio": "$450.000 + Expensas",
         "operacion": "Alquiler",
-        "descripcion": "Recién pintado, ideal estudiantes. A metros de facultad de medicina."
+        "descripcion": "Recién pintado, ideal estudiantes. A metros de facultad de medicina.",
+        "foto": "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=800&q=80",
+        "link_agenda": "https://calendly.com/agentech/visita-recoleta"
     }
 ]
