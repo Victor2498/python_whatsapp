@@ -71,26 +71,38 @@ async def webhook(request: Request):
                     msg.get("message", {}).get("extendedTextMessage", {}).get("text", "")
 
         # Lógica de respuesta
+        print(f"Mensaje recibido de {remote_jid}: {user_text}")
+        
         if user_text.lower().strip() == "hola":
             ai_response = "soy Agentech, buen día"
         else:
             # 1. Consultar a OpenAI para otros mensajes
+            print("Consultando a OpenAI...")
             ai_response = get_chatgpt_response(user_text)
+            print(f"Respuesta de OpenAI: {ai_response}")
 
         # 2. Enviar respuesta a Evolution API
-        send_to_whatsapp(remote_jid, ai_response)
+        if ai_response:
+            print(f"Enviando respuesta a WhatsApp: {ai_response}")
+            send_to_whatsapp(remote_jid, ai_response)
+        else:
+            print("Error: No hay respuesta para enviar")
 
     return {"status": "success"}
 
 def get_chatgpt_response(text):
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": text}
-        ]
-    )
-    return completion.choices[0].message.content
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": text}
+            ]
+        )
+        return completion.choices[0].message.content
+    except Exception as e:
+        print(f"ERROR EN OPENAI: {e}")
+        return "Lo siento, tengo un problema técnico para procesar tu consulta ahora mismo."
 
 def send_to_whatsapp(jid, text):
     url = f"{EVOLUTION_API_URL}/message/sendText/{EVOLUTION_INSTANCE}"
@@ -100,4 +112,8 @@ def send_to_whatsapp(jid, text):
         "delay": 1500 # Simula escritura por 1.5 segundos
     }
     headers = {"apiKey": EVOLUTION_API_KEY, "Content-Type": "application/json"}
-    requests.post(url, json=payload, headers=headers)
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        print(f"Estado de envío Evolution API: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"ERROR ENVIANDO A EVOLUTION: {e}")
