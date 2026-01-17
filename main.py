@@ -30,11 +30,12 @@ async def webhook(request: Request):
         user_text = msg.get("message", {}).get("conversation") or \
                     msg.get("message", {}).get("extendedTextMessage", {}).get("text", "")
 
-        if not user_text:
-            return {"status": "no_text"}
-
-        # 1. Consultar a OpenAI
-        ai_response = get_chatgpt_response(user_text)
+        # Lógica de respuesta
+        if user_text.lower().strip() == "hola":
+            ai_response = "soy Agentech, buen día"
+        else:
+            # 1. Consultar a OpenAI para otros mensajes
+            ai_response = get_chatgpt_response(user_text)
 
         # 2. Enviar respuesta a Evolution API
         send_to_whatsapp(remote_jid, ai_response)
